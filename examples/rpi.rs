@@ -17,12 +17,9 @@
 extern crate linux_embedded_hal as hal;
 extern crate max31865;
 
-use std::thread;
-use std::time::Duration;
-
-use max31865::Max31865;
+use max31865::{Max31865, FilterMode, SensorType};
 use hal::spidev::{self, SpidevOptions};
-use hal::{Delay, Pin, Spidev};
+use hal::{Pin, Spidev};
 use hal::sysfs_gpio::Direction;
 
 fn main() {
@@ -45,9 +42,19 @@ fn main() {
     rdy.set_direction(Direction::In).unwrap();
     rdy.set_value(1).unwrap();
 
-    let mut max31865 = Max31865::new(spi, ncs, rdy);
+    let mut max31865 = Max31865::new(spi, ncs, rdy).unwrap();
 
-    max31865.configure();
+    // setup the sensor so it repeatedly performs conversion and 
+    // informs us over the ready pin
+    max31865.configure(true, true, false, SensorType::ThreeWire, FilterMode::Filter50Hz).unwrap();
 
-    
+    loop {
+        // if the sensor is ready, read the value and print it otherwise do nothing
+        // one may not want to loop like this
+        if max31865.is_ready().unwrap() {
+            let temp = max31865.read_default_conversion().unwrap();
+
+            println!("The temperature is {}", (temp as f64)/100.);
+        }
+    }
 }

@@ -1,13 +1,14 @@
 //! A generic driver for the MAX31865 RTD to Digital converter
 //! 
-//! Datasheet: https://datasheets.maximintegrated.com/en/ds/MAX31865.pdf
+//! # References
+//! - Datasheet: https://datasheets.maximintegrated.com/en/ds/MAX31865.pdf
 
 #![feature(unsize)]
 #![no_std]
 
 extern crate embedded_hal as hal;
 
-use hal::digital::{OutputPin, InputPin};
+use hal::digital::{OutputPin};
 use hal::blocking::spi;
 
 use core::marker::Unsize;
@@ -37,17 +38,13 @@ impl<E, SPI, NCS, RDY> Max31865<SPI, NCS, RDY>
 where 
     SPI: spi::Write<u8, Error = E> + spi::Transfer<u8, Error = E>,
     NCS: OutputPin,
-    RDY: InputPin
+    RDY: OutputPin
 {
     pub fn new(
         spi: SPI,
         ncs: NCS,
         rdy: RDY,
     ) -> Result<Max31865<SPI, NCS, RDY>, E>
-    where
-        NCS: OutputPin,
-        RDY: InputPin,
-        SPI: spi::Write<u8, Error = E> + spi::Transfer<u8, Error = E>,
     {
         let default_calib = 40000;
 
@@ -61,6 +58,9 @@ where
         Ok(max31865)
     }
 
+    /// V_BIAS is required to correctly perform conversion
+    /// Conversion mode: true to automatically perform conversion, otherwise normally off
+    /// One Shot, only perform detection once 
     pub fn configure(&mut self, vbias: bool, conversion_mode: bool, one_shot: bool,
         sensor_type: SensorType, filter_mode: FilterMode) -> Result<(), E> {
         let conf : u8 = ((vbias as u8) << 7) |
