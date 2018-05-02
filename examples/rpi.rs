@@ -36,7 +36,7 @@ fn main() {
     ncs.set_direction(Direction::Out).unwrap();
     ncs.set_value(1).unwrap();
 
-    let rdy = Pin::new(20);
+    let rdy = Pin::new(22);
     rdy.export().unwrap();
     while !rdy.is_exported() {}
     rdy.set_direction(Direction::In).unwrap();
