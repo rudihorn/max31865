@@ -1,0 +1,10 @@
+[package]
+name = "max31865"
+version = "0.1.0"
+authors = ["Rudi Horn <dyn-git@rudi-horn.de>"]
+
+[dependencies]
+embedded-hal = { version = "0.1.2", features = ["unproven"] }
+
+[dev-dependencies.linux-embedded-hal]
+git = "https://github.com/japaric/linux-embedded-hal"
