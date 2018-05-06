@@ -8,7 +8,7 @@
 
 extern crate embedded_hal as hal;
 
-use hal::digital::{OutputPin};
+use hal::digital::{InputPin, OutputPin};
 use hal::spi::{Mode, Phase, Polarity};
 use hal::blocking::spi;
 
@@ -44,7 +44,7 @@ impl<E, SPI, NCS, RDY> Max31865<SPI, NCS, RDY>
 where 
     SPI: spi::Write<u8, Error = E> + spi::Transfer<u8, Error = E>,
     NCS: OutputPin,
-    RDY: OutputPin
+    RDY: InputPin
 {
     pub fn new(
         spi: SPI,
