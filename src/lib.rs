@@ -9,10 +9,16 @@
 extern crate embedded_hal as hal;
 
 use hal::digital::{OutputPin};
+use hal::spi::{Mode, Phase, Polarity};
 use hal::blocking::spi;
 
 use core::marker::Unsize;
 use core::mem;
+
+pub const MODE : Mode = Mode {
+    phase: Phase::CaptureOnSecondTransition,
+    polarity: Polarity::IdleHigh    
+};
 
 pub mod temp_conversion;
 
