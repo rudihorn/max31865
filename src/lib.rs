@@ -8,8 +8,6 @@
 
 extern crate embedded_hal as hal;
 
-mod tests;
-
 use hal::digital::{InputPin, OutputPin};
 use hal::spi::{Mode, Phase, Polarity};
 use hal::blocking::spi;
