@@ -26,7 +26,19 @@ static LOOKUP_TABLE : &[TempPair]= &[
 ];
 
 
-// this probably won't handle edge cases very well
+/// Convert the specified PT100 resistance value into a temperature.
+/// 
+/// # Arguments
+/// 
+/// * `val` - A 16 bit unsigned integer specifying the resistance in Ohms multiplied by 100, e.g. 
+///           13851 would indicate 138.51 Ohms and convert to 100 degrees Celcius.
+/// 
+/// # Remarks
+/// 
+/// The output temperature will be in degrees Celcius multiplied by 100, e.g. 10000 would signify 100.00
+/// degrees Celcius.
+/// 
+/// *Note*: This won't handle edge cases very well.
 pub fn lookup_temperature(val : u16) -> u32 {
     let mut first = &(0, 10000);
     let mut second = &(1000, 10390);
