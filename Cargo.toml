@@ -10,6 +10,3 @@ license = "MIT or APACHE-2.0"
 
 [dependencies]
 embedded-hal = { version = "0.1.2", features = ["unproven"] }
-
-[dev-dependencies.linux-embedded-hal]
-git = "https://github.com/japaric/linux-embedded-hal"
