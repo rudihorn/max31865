@@ -8,6 +8,8 @@
 
 extern crate embedded_hal as hal;
 
+mod tests;
+
 use hal::digital::{InputPin, OutputPin};
 use hal::spi::{Mode, Phase, Polarity};
 use hal::blocking::spi;
@@ -48,12 +50,13 @@ where
 {
     pub fn new(
         spi: SPI,
-        ncs: NCS,
+        mut ncs: NCS,
         rdy: RDY,
     ) -> Result<Max31865<SPI, NCS, RDY>, E>
     {
         let default_calib = 40000;
 
+        ncs.set_high();
         let max31865 = Max31865 {
             spi,
             ncs,
@@ -101,7 +104,7 @@ where
     }
 
     pub fn is_ready(&self) -> Result<bool, E> {
-        Ok(self.rdy.is_high())
+        Ok(self.rdy.is_low())
     }
 
     fn read(&mut self, reg: Register) -> Result<u8, E> {
@@ -146,8 +149,8 @@ enum Register {
     FAULT_STATUS = 0x07
 }
 
-const R: u8 = 1 << 7;
-const W: u8 = 0 << 7;
+const R: u8 = 0 << 7;
+const W: u8 = 1 << 7;
 
 impl Register {
     fn read_address(&self) -> u8 {
