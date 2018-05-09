@@ -11,5 +11,13 @@ license = "MIT or APACHE-2.0"
 [dependencies]
 embedded-hal = { version = "0.1.2", features = ["unproven"] }
 
-[dev-dependencies.linux-embedded-hal]
-git = "https://github.com/japaric/linux-embedded-hal"
+[dev-dependencies]
+cortex-m = "0.4.3"
+cortex-m-rt = "0.4.0"
+panic-abort = "0.1.1"
+ssd1306 = "0.1.0"
+embedded-graphics = "0.1.1"
+stm32f103xx-hal = { git = "https://github.com/ilya-epifanov/stm32f103xx-hal", branch = "i2c-support", features = ["rt"] }
+
+[target.'cfg(unix)'.dev-dependencies]
+linux-embedded-hal = { git = "https://github.com/japaric/linux-embedded-hal" }
