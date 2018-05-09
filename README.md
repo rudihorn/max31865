@@ -2,6 +2,10 @@
 
 A generic driver for the MAX31865 RTD to Digital converter
 
+## [Documentation](https://rudihorn.github.io/max31865/max31865/index.html)
+
+## [Examples](https://github.com/rudihorn/max31865/tree/extra_examples/examples)
+
 ## What works
 
 - reading the raw value and the converted temperature value
