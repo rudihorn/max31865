@@ -8,6 +8,7 @@ main() {
     curl -Ls https://github.com/davisp/ghp-import/archive/master.tar.gz | \
         tar --strip-components 1 -C ghp-import -xz
 
+    touch target/$TARGET/doc/.nejekyll
     ./ghp-import/ghp_import.py target/$TARGET/doc
 
     set +x
@@ -15,6 +16,6 @@ main() {
         echo OK
 }
 
-if [ $TRAVIS_BRANCH = master ]; then
+if [ $TRAVIS_BRANCH = extra_examples ]; then
     main
 fi
