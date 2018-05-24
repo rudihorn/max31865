@@ -25,9 +25,8 @@ before_cache:
 
 branches:
   only:
-    - auto
     - master
-    - try
+    - extra_examples
 
 notifications:
   email:

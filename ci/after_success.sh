@@ -16,6 +16,6 @@ main() {
         echo OK
 }
 
-if [ $TRAVIS_BRANCH = master ]; then
+if [ $TRAVIS_BRANCH = extra_examples ]; then
     main
 fi
