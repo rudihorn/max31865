@@ -1,7 +1,7 @@
 set -euxo pipefail
 
 main() {
-    cargo doc --target $TARGET
+    cargo doc --feature doc --target $TARGET
 
     mkdir ghp-import
 
