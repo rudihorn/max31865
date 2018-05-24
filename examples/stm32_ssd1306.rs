@@ -1,3 +1,23 @@
+//! An example of reading the temperature and writing it to a screen.
+//! 
+//! # Devices 
+//! 
+//! - SSD1306 OLED display via I2C
+//! - Max31865 Temperature Sensor via SPI
+//! 
+//! Connections
+//! 
+//! SSD 1306 
+//! - PB8 : I2C SCK
+//! - PB9 : I2C SDA
+//! 
+//! MAX31865
+//! - PB12 : Negated Slave Select
+//! - PB13 : SPI Clock
+//! - PB14 : MISO
+//! - PB15 : MOSI
+//! - PA8 : Ready Pin
+
 #![no_std]
 
 extern crate cortex_m;

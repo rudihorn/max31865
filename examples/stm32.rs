@@ -1,4 +1,19 @@
-#![no_std]
+//! An example of reading the temperature.
+//! 
+//! # Devices 
+//! 
+//! - SSD1306 OLED display via I2C
+//! 
+//! Connections
+//! 
+//! MAX31865
+//! - PB12 : Negated Slave Select
+//! - PB13 : SPI Clock
+//! - PB14 : MISO
+//! - PB15 : MOSI
+//! - PA8 : Ready Pin!
+
+#[no_std]
 
 extern crate cortex_m;
 extern crate panic_abort;
