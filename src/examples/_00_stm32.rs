@@ -15,9 +15,12 @@
 //!
 //! ```
 //! 
-//! #[no_std]
+//! #![no_std]
+//! #![no_main]
 //! 
 //! extern crate cortex_m;
+//! #[macro_use]
+//! extern crate cortex_m_rt as rt;
 //! extern crate panic_abort;
 //! extern crate max31865;
 //! extern crate embedded_hal as hal;
@@ -25,9 +28,12 @@
 //! 
 //! use dev_hal::spi::Spi;
 //! use dev_hal::prelude::*;
+//! use rt::ExceptionFrame;
 //! use max31865::{Max31865, SensorType, FilterMode};
 //! 
-//! fn main() {
+//! entry!(main);
+//! 
+//! fn main() -> ! {
 //!     let dp = dev_hal::stm32f103xx::Peripherals::take().unwrap();
 //!     let mut flash = dp.FLASH.constrain();
 //!     let mut rcc = dp.RCC.constrain();
@@ -67,6 +73,18 @@
 //!         }
 //! 
 //!     }
+//! }
+//! 
+//! exception!(HardFault, hard_fault);
+//! 
+//! fn hard_fault(ef: &ExceptionFrame) -> ! {
+//!     panic!("{:#?}", ef)
+//! }
+//! 
+//! exception!(*, default_handler);
+//! 
+//! fn default_handler(irqn: i16) {
+//!     panic!("Unhandled exception (IRQn = {})", irqn);
 //! }
 //! ```
 // Auto-generated. Do not modify.
