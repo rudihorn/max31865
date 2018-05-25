@@ -11,7 +11,7 @@ readme = "README.md"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-embedded-hal = { version = "0.1.2", features = ["unproven"] }
+embedded-hal = { version = "0.2.0", features = ["unproven"] }
 
 [target.thumbv7m-none-eabi.dev-dependencies]
 cortex-m = "0.4.3"
@@ -21,8 +21,8 @@ ssd1306 = "0.1.0"
 embedded-graphics = "0.1.1"
 stm32f103xx-hal = { git = "https://github.com/ilya-epifanov/stm32f103xx-hal", branch = "i2c-support", features = ["rt"] }
 
-#[target.'cfg(unix)'.dev-dependencies]
-#linux-embedded-hal = { git = "https://github.com/japaric/linux-embedded-hal" }
+[target.'cfg(unix)'.dev-dependencies]
+linux-embedded-hal = "0.2.0"
 
 [features]
 doc = []
