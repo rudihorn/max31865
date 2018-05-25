@@ -1,7 +1,7 @@
 set -euxo pipefail
 
 main() {
-    cargo doc --feature doc --target $TARGET
+    cargo doc --features doc --target $TARGET
 
     mkdir ghp-import
 
@@ -16,6 +16,6 @@ main() {
         echo OK
 }
 
-if [ $TRAVIS_BRANCH = extra_examples ]; then
+if [ $TRAVIS_BRANCH = extra_examples ] && [ $TARGET = x86_64-unknown-linux-gnu ]; then
     main
 fi
