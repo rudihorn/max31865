@@ -16,7 +16,7 @@ use core::marker::Unsize;
 use core::mem;
 
 #[cfg(feature = "doc")]
-pub use examples;
+pub mod examples;
 
 pub const MODE : Mode = Mode {
     phase: Phase::CaptureOnSecondTransition,
