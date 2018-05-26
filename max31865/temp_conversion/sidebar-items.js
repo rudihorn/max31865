@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["lookup_temperature","Convert the specified PT100 resistance value into a temperature."]]});

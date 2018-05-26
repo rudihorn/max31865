@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/examples/_02_rpi.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>_02_rpi.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! Raspberry Pi demo</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Connections</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! IMPORTANT: Do *not* use PIN24 / BCM8 / CE0 as the NCS pin</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - PIN1 = 3V3 = VCC</span>
+<span class="doccomment">//! - PIN19 = BCM10 = MOSI (SDA)</span>
+<span class="doccomment">//! - PIN21 = BCM9 = MISO (AD0)</span>
+<span class="doccomment">//! - PIN23 = BCM11 = SCLK (SCL)</span>
+<span class="doccomment">//! - PIN22 = BCM25 = NCS</span>
+<span class="doccomment">//! - PIN15 = BCM22 = RDY</span>
+<span class="doccomment">//! - PIN6 = GND = GND</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! for further reference check https://pinout.xyz/#</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! extern crate linux_embedded_hal as lin_hal;</span>
+<span class="doccomment">//! extern crate embedded_hal as hal;</span>
+<span class="doccomment">//! extern crate max31865;</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! use max31865::{Max31865, FilterMode, SensorType};</span>
+<span class="doccomment">//! use lin_hal::spidev::{self, SpidevOptions};</span>
+<span class="doccomment">//! use lin_hal::{Pin, Spidev};</span>
+<span class="doccomment">//! use lin_hal::sysfs_gpio::Direction;</span>
+<span class="doccomment">//! use hal::digital::{InputPin, OutputPin};</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! struct HackInputPin&lt;&#39;a&gt; {</span>
+<span class="doccomment">//!     pin: &amp;&#39;a OutputPin</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! impl&lt;&#39;a&gt; HackInputPin&lt;&#39;a&gt; {</span>
+<span class="doccomment">//!     fn new(p : &amp;&#39;a OutputPin) -&gt; HackInputPin {</span>
+<span class="doccomment">//!         HackInputPin {</span>
+<span class="doccomment">//!             pin: p</span>
+<span class="doccomment">//!         }</span>
+<span class="doccomment">//!     }</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! impl&lt;&#39;a&gt; InputPin for HackInputPin&lt;&#39;a&gt; {</span>
+<span class="doccomment">//!     fn is_low(&amp;self) -&gt; bool {</span>
+<span class="doccomment">//!         self.pin.is_low()</span>
+<span class="doccomment">//!     }</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//!     fn is_high(&amp;self) -&gt; bool {</span>
+<span class="doccomment">//!         self.pin.is_high()</span>
+<span class="doccomment">//!     }</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! fn main() {</span>
+<span class="doccomment">//!     let mut spi = Spidev::open(&quot;/dev/spidev0.0&quot;).unwrap();</span>
+<span class="doccomment">//!     let options = SpidevOptions::new()</span>
+<span class="doccomment">//!         .max_speed_hz(1_000_000)</span>
+<span class="doccomment">//!         .mode(spidev::SPI_MODE_3)</span>
+<span class="doccomment">//!         .build();</span>
+<span class="doccomment">//!     spi.configure(&amp;options).unwrap();</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//!     let ncs = Pin::new(25);</span>
+<span class="doccomment">//!     ncs.export().unwrap();</span>
+<span class="doccomment">//!     while !ncs.is_exported() {}</span>
+<span class="doccomment">//!     ncs.set_direction(Direction::Out).unwrap();</span>
+<span class="doccomment">//!     ncs.set_value(1).unwrap();</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//!     let rdy = Pin::new(22);</span>
+<span class="doccomment">//!     rdy.export().unwrap();</span>
+<span class="doccomment">//!     while !rdy.is_exported() {}</span>
+<span class="doccomment">//!     rdy.set_direction(Direction::In).unwrap();</span>
+<span class="doccomment">//!     rdy.set_value(1).unwrap();</span>
+<span class="doccomment">//!     let rdyi = HackInputPin::new(&amp;rdy);</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//!     let mut max31865 = Max31865::new(spi, ncs, rdyi).unwrap();</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//!     // setup the sensor so it repeatedly performs conversion and </span>
+<span class="doccomment">//!     // informs us over the ready pin</span>
+<span class="doccomment">//!     max31865.configure(true, true, false, SensorType::ThreeWire, FilterMode::Filter50Hz).unwrap();</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//!     loop {</span>
+<span class="doccomment">//!         // if the sensor is ready, read the value and print it otherwise do nothing</span>
+<span class="doccomment">//!         // one may not want to loop like this</span>
+<span class="doccomment">//!         if max31865.is_ready().unwrap() {</span>
+<span class="doccomment">//!             let temp = max31865.read_default_conversion().unwrap();</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//!             println!(&quot;The temperature is {}&quot;, (temp as f64)/100.);</span>
+<span class="doccomment">//!         }</span>
+<span class="doccomment">//!     }</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="comment">// Auto-generated. Do not modify.</span>
+</pre>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g. <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g. <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g. <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../../";window.currentCrate = "max31865";</script><script src="../../../aliases.js"></script><script src="../../../main.js"></script><script defer src="../../../search-index.js"></script></body></html>
