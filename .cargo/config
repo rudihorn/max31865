@@ -6,7 +6,6 @@ runner = 'arm-none-eabi-gdb'
 rustflags = [
   "-C", "link-arg=-Tlink.x",
   "-C", "linker=arm-none-eabi-ld",
-  "-Z", "linker-flavor=ld",
 ]
 
 [target.thumbv7m-none-eabi]
@@ -14,7 +13,6 @@ runner = 'arm-none-eabi-gdb'
 rustflags = [
   "-C", "link-arg=-Tlink.x",
   "-C", "linker=arm-none-eabi-ld",
-  "-Z", "linker-flavor=ld",
 ]
 
 [target.thumbv7em-none-eabi]
@@ -22,7 +20,6 @@ runner = 'arm-none-eabi-gdb'
 rustflags = [
   "-C", "link-arg=-Tlink.x",
   "-C", "linker=arm-none-eabi-ld",
-  "-Z", "linker-flavor=ld",
 ]
 
 [target.thumbv7em-none-eabihf]
@@ -30,5 +27,4 @@ runner = 'arm-none-eabi-gdb'
 rustflags = [
   "-C", "link-arg=-Tlink.x",
   "-C", "linker=arm-none-eabi-ld",
-  "-Z", "linker-flavor=ld",
 ]
