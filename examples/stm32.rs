@@ -23,11 +23,13 @@ extern crate panic_abort;
 extern crate max31865;
 extern crate embedded_hal as hal;
 extern crate stm32f103xx_hal as dev_hal;
+extern crate cortex_m_semihosting;
 
 use dev_hal::spi::Spi;
 use dev_hal::prelude::*;
 use rt::ExceptionFrame;
 use max31865::{Max31865, SensorType, FilterMode};
+use cortex_m_semihosting::hprintln;
 
 entry!(main);
 
@@ -55,14 +57,17 @@ fn main() -> ! {
     );
 
     let mut max31865 = Max31865::new(spi1, nss, rdy).unwrap();
-    max31865.set_calibration(43234).unwrap();
-    max31865.configure(true, true, false, SensorType::ThreeWire, FilterMode::Filter50Hz).unwrap();
+    //max31865.set_calibration(43234).unwrap();
+    max31865.configure(true, true, false, SensorType::TwoOrFourWire, FilterMode::Filter50Hz).unwrap();
 
     let mut last = 0;
 
     loop {
         if max31865.is_ready().unwrap() {
+            let raw = max31865.read_raw().unwrap();
             let temp = max31865.read_default_conversion().unwrap();
+            //let temp = max31865.read_raw().unwrap();
+            hprintln!("temp:{}.{:0>2}", temp/100, (temp%100).abs());
 
             if temp != last {
                 last = temp;

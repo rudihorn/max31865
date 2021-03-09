@@ -4,9 +4,10 @@
 //! - Datasheet: https://datasheets.maximintegrated.com/en/ds/MAX31865.pdf
 
 #![feature(unsize)]
-#![no_std]
+#![cfg_attr(not(test), no_std)]
 
 extern crate embedded_hal as hal;
+extern crate cortex_m_semihosting;
 
 use hal::digital::{InputPin, OutputPin};
 use hal::spi::{Mode, Phase, Polarity};
@@ -130,10 +131,11 @@ where
     /// # Remarks
     /// 
     /// The output value is the value in degrees Celcius multiplied by 100.
-    pub fn read_default_conversion(&mut self) -> Result<u32, E> {
+    ///
+    pub fn read_default_conversion(&mut self) -> Result<i32, E> {
         let raw = self.read_raw()?;
         let ohms = ((raw >> 1) as u32 * self.calibration) >> 15;
-        let temp = temp_conversion::lookup_temperature(ohms as u16);
+        let temp = temp_conversion::lookup_temperature(ohms as u16).unwrap_or(i32::MIN);
 
         Ok(temp)
     }
