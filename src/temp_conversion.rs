@@ -16,7 +16,7 @@ fn interpolate(ohm_100: i32, first: (i32, i32), second: (i32, i32)) -> i32 {
     numerator / denominator + first.0
 }
 
-trait LookupToI32 {
+pub trait LookupToI32 {
     fn lookup(&self, ind: usize) -> i32;
     fn binary_search(&self, val: i32) -> Result<usize, usize>;
 }
@@ -36,7 +36,7 @@ impl<'a> LookupToI32 for LookupTable<'a, u32> {
     fn lookup(&self, ind: usize) -> i32 {
         self.data[ind] as i32
     }
- 
+
     fn binary_search(&self, val: i32) -> Result<usize, usize> {
         let val = val as u32;
         self.data.binary_search(&val)
