@@ -1,11 +1,11 @@
 //! An example of reading the temperature.
-//! 
-//! # Devices 
-//! 
+//!
+//! # Devices
+//!
 //! - SSD1306 OLED display via I2C
-//! 
+//!
 //! Connections
-//! 
+//!
 //! MAX31865
 //! - PB12 : Negated Slave Select
 //! - PB13 : SPI Clock
@@ -19,7 +19,7 @@
 extern crate cortex_m;
 #[macro_use]
 extern crate cortex_m_rt as rt;
-extern crate panic_abort;
+extern crate panic_halt;
 extern crate max31865;
 extern crate embedded_hal as hal;
 extern crate stm32f103xx_hal as dev_hal;
