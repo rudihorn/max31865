@@ -136,14 +136,25 @@ where
         self.calibration = calib;
     }
 
+    /// Read the raw resistance value.
+    ///
+    /// # Remarks
+    ///
+    /// The output value is the value in Ohms multiplied by 100.
+    pub fn read_ohms(&mut self) -> Result<u32, Error<E>> {
+        let raw = self.read_raw()?;
+        let ohms = ((raw >> 1) as u32 * self.calibration) >> 15;
+
+        Ok(ohms)
+    }
+
     /// Read the raw resistance value and then perform conversion to degrees Celsius.
     ///
     /// # Remarks
     ///
     /// The output value is the value in degrees Celsius multiplied by 100.
     pub fn read_default_conversion(&mut self) -> Result<i32, Error<E>> {
-        let raw = self.read_raw()?;
-        let ohms = ((raw >> 1) as u32 * self.calibration) >> 15;
+        let ohms = self.read_ohms()?;
         let temp = temp_conversion::LOOKUP_VEC_PT100.lookup_temperature(ohms as i32);
 
         Ok(temp)
