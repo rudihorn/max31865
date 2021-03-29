@@ -26,26 +26,24 @@
 #![no_std]
 #![no_main]
 
-extern crate cortex_m;
 #[macro_use]
-extern crate cortex_m_rt as rt;
-extern crate embedded_graphics;
-extern crate embedded_hal;
-extern crate max31865;
+extern crate cortex_m_rt;
 extern crate panic_halt;
-extern crate ssd1306;
 extern crate stm32f1xx_hal as hal;
 
 use core::fmt::Write;
-use hal::i2c::{BlockingI2c, DutyCycle, Mode};
-use hal::prelude::*;
-use hal::spi::Spi;
+use stm32f1xx_hal::{
+    i2c::{BlockingI2c, DutyCycle, Mode},
+    prelude::*,
+    spi::Spi,
+    stm32,
+};
 use max31865::{FilterMode, Max31865, SensorType};
 use ssd1306::{mode::TerminalMode, Builder, I2CDIBuilder};
 
 #[entry]
 fn main() -> ! {
-    let dp = hal::stm32::Peripherals::take().unwrap();
+    let dp = stm32::Peripherals::take().unwrap();
     let mut flash = dp.FLASH.constrain();
     let mut rcc = dp.RCC.constrain();
     let clocks = rcc.cfgr.freeze(&mut flash.acr);

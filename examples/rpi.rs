@@ -19,14 +19,10 @@
 //! - Uncomment lines for `linux-embedded-hal` dependency in `Cargo.toml`
 //! - Build using: `cargo build --example rpi --target arm-unknown-linux-gnueabihf`
 
-extern crate embedded_hal as hal;
-extern crate linux_embedded_hal as lin_hal;
-extern crate max31865;
-
-use lin_hal::spidev;
-use lin_hal::spidev::SpidevOptions;
-use lin_hal::sysfs_gpio::Direction;
-use lin_hal::{Pin, Spidev};
+use linux_embedded_hal::spidev;
+use linux_embedded_hal::spidev::SpidevOptions;
+use linux_embedded_hal::sysfs_gpio::Direction;
+use linux_embedded_hal::{Pin, Spidev};
 use max31865::{FilterMode, Max31865, SensorType};
 
 fn main() {

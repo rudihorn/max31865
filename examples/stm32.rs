@@ -15,20 +15,14 @@
 //!
 //! # Build instructions
 //!
-//! - Build using: `cargo build --example stm32 --target thumbv7m-none-eabi`
-
+//! - Build using: `cargo build --example stm32 --target thumbv7m-none-eabi --release`
 
 #![no_std]
 #![no_main]
 
-extern crate cortex_m;
 #[macro_use]
-extern crate cortex_m_rt as rt;
-extern crate cortex_m_semihosting;
-extern crate embedded_hal as hal;
-extern crate max31865;
+extern crate cortex_m_rt;
 extern crate panic_halt;
-extern crate stm32f1xx_hal;
 
 use cortex_m_semihosting::hprintln;
 use max31865::{FilterMode, Max31865, SensorType};

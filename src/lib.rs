@@ -3,7 +3,6 @@
 //! # References
 //! - Datasheet: https://datasheets.maximintegrated.com/en/ds/MAX31865.pdf
 
-#![feature(unsize)]
 #![cfg_attr(not(test), no_std)]
 
 extern crate embedded_hal as hal;
@@ -11,9 +10,6 @@ extern crate embedded_hal as hal;
 use hal::blocking::spi;
 use hal::digital::v2::{InputPin, OutputPin};
 use hal::spi::{Mode, Phase, Polarity};
-
-use core::marker::Unsize;
-use core::mem;
 
 #[cfg(feature = "doc")]
 pub mod examples;
@@ -45,7 +41,7 @@ pub struct Max31865<SPI, NCS, RDY> {
 #[derive(Debug)]
 pub enum Error<E> {
     SPIError(E),
-    PinError
+    PinError,
 }
 
 impl<E, SPI, NCS, RDY> Max31865<SPI, NCS, RDY>
@@ -188,29 +184,26 @@ where
     }
 
     fn read(&mut self, reg: Register) -> Result<u8, Error<E>> {
-        let buffer: [u8; 2] = self.read_many(reg)?;
+        let buffer: [u8; 2] = self.read_two(reg)?;
         Ok(buffer[1])
     }
 
-    fn read_many<B>(&mut self, reg: Register) -> Result<B, Error<E>>
-    where
-        B: Unsize<[u8]>,
-    {
-        let mut buffer: B = unsafe { mem::zeroed() };
-        {
-            let slice: &mut [u8] = &mut buffer;
-            slice[0] = reg.read_address();
-            self.ncs.set_low().map_err(|_| Error::PinError)?;
-            self.spi.transfer(slice).map_err(|e| Error::SPIError(e))?;
-            self.ncs.set_high().map_err(|_| Error::PinError)?;
-        }
+    fn read_two(&mut self, reg: Register) -> Result<[u8; 2], Error<E>> {
+        let mut buffer = [0u8; 2];
+        let slice: &mut [u8] = &mut buffer;
+        slice[0] = reg.read_address();
+        self.ncs.set_low().map_err(|_| Error::PinError)?;
+        self.spi.transfer(slice).map_err(|e| Error::SPIError(e))?;
+        self.ncs.set_high().map_err(|_| Error::PinError)?;
 
         Ok(buffer)
     }
 
     fn write(&mut self, reg: Register, val: u8) -> Result<(), Error<E>> {
         self.ncs.set_low().map_err(|_| Error::PinError)?;
-        self.spi.write(&[reg.write_address(), val]).map_err(|e| Error::SPIError(e))?;
+        self.spi
+            .write(&[reg.write_address(), val])
+            .map_err(|e| Error::SPIError(e))?;
         self.ncs.set_high().map_err(|_| Error::PinError)?;
         Ok(())
     }

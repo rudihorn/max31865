@@ -9,6 +9,7 @@ documentation = "https://rudihorn.github.io/max31865/max31865/index.html"
 repository = "https://github.com/rudihorn/max31865"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
+edition = "2018"
 
 [dependencies]
 embedded-hal = { version = "0.2.4", features = ["unproven"] }
