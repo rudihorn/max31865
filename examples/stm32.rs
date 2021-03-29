@@ -12,6 +12,11 @@
 //! - PB14 : MISO
 //! - PB15 : MOSI
 //! - PA8 : Ready Pin!
+//!
+//! # Build instructions
+//!
+//! - Build using: `cargo build --example stm32 --target thumbv7m-none-eabi`
+
 
 #![no_std]
 #![no_main]
@@ -19,25 +24,26 @@
 extern crate cortex_m;
 #[macro_use]
 extern crate cortex_m_rt as rt;
-extern crate panic_halt;
-extern crate max31865;
-extern crate embedded_hal as hal;
-extern crate stm32f103xx_hal as dev_hal;
 extern crate cortex_m_semihosting;
+extern crate embedded_hal as hal;
+extern crate max31865;
+extern crate panic_halt;
+extern crate stm32f1xx_hal;
 
-use dev_hal::spi::Spi;
-use dev_hal::prelude::*;
-use rt::ExceptionFrame;
-use max31865::{Max31865, SensorType, FilterMode};
 use cortex_m_semihosting::hprintln;
+use max31865::{FilterMode, Max31865, SensorType};
+use stm32f1xx_hal::{pac, prelude::*, spi::Spi};
 
-entry!(main);
-
+#[entry]
 fn main() -> ! {
-    let dp = dev_hal::stm32f103xx::Peripherals::take().unwrap();
+    let dp = pac::Peripherals::take().unwrap();
+
+    // Microcontroller setup
     let mut flash = dp.FLASH.constrain();
     let mut rcc = dp.RCC.constrain();
     let clocks = rcc.cfgr.freeze(&mut flash.acr);
+
+    // GPIO ports setup
     let gpioa = dp.GPIOA.split(&mut rcc.apb2);
     let mut gpiob = dp.GPIOB.split(&mut rcc.apb2);
 
@@ -57,35 +63,35 @@ fn main() -> ! {
     );
 
     let mut max31865 = Max31865::new(spi1, nss, rdy).unwrap();
-    //max31865.set_calibration(43234).unwrap();
-    max31865.configure(true, true, false, SensorType::TwoOrFourWire, FilterMode::Filter50Hz).unwrap();
+
+    // Optionally set the calibration reference resistance by specifying the
+    // reference resistance in ohms multiplied by 100. See documentation for
+    // `set_calibration` function.
+
+    //  max31865.set_calibration(43234);
+
+    max31865
+        .configure(
+            true,
+            true,
+            false,
+            SensorType::TwoOrFourWire,
+            FilterMode::Filter50Hz,
+        )
+        .unwrap();
 
     let mut last = 0;
 
     loop {
         if max31865.is_ready().unwrap() {
-            let raw = max31865.read_raw().unwrap();
             let temp = max31865.read_default_conversion().unwrap();
-            //let temp = max31865.read_raw().unwrap();
-            hprintln!("temp:{}.{:0>2}", temp/100, (temp%100).abs());
+
+            hprintln!("temp:{}.{:0>2}", temp / 100, (temp % 100).abs()).unwrap();
 
             if temp != last {
                 last = temp;
-                // temperature in Celcius = temp / 100
+                // The temperature value in Celsius is `temp / 100`.
             }
         }
-
     }
-}
-
-exception!(HardFault, hard_fault);
-
-fn hard_fault(ef: &ExceptionFrame) -> ! {
-    panic!("{:#?}", ef)
-}
-
-exception!(*, default_handler);
-
-fn default_handler(irqn: i16) {
-    panic!("Unhandled exception (IRQn = {})", irqn);
 }

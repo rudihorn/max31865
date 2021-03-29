@@ -102,7 +102,7 @@ where
 /// 100.0 Ohms to 149.83 Ohms.
 pub const LOOKUP_TABLE_PT100_SHORT: LookupTable<'static, u16> = LookupTable {
     min: 0,
-    step: 20,
+    step: 10,
     data: &[
         10000, 10390, 10779, 11167, 11554, 11940, 12324, 12708, 13090, 13471, 13851, 14229, 14607,
         14983,

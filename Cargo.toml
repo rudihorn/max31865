@@ -12,16 +12,18 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 embedded-hal = { version = "0.2.4", features = ["unproven"] }
-cortex-m-semihosting = "0.3.3"
 
 [target.thumbv7m-none-eabi.dev-dependencies]
-cortex-m = "0.5.2"
-cortex-m-rt = "0.5.1"
+cortex-m-semihosting = "0.3.7"
+cortex-m = "0.7.2"
+cortex-m-rt = "0.6.13"
 panic-halt = "0.2.0"
-stm32f103xx-hal = { git = "https://github.com/japaric/stm32f103xx-hal", features = ["rt"] }
+stm32f1xx-hal = { version = "0.7.0", features = ["stm32f103"] }
+embedded-graphics = "0.6.2"
+ssd1306 = "0.5.1"
 
 #[target.'cfg(unix)'.dev-dependencies]
-#linux-embedded-hal = "0.2.0"
+#linux-embedded-hal = "0.3.0"
 
 [features]
 doc = []
