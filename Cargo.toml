@@ -1,6 +1,6 @@
 [package]
 name = "max31865"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Rudi Horn <dyn-git@rudi-horn.de>"]
 keywords = ["embedded-hal-crate", "rtd-sensor"]
 categories = ["embedded", "no-std", "hardware-support"]
