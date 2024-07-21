@@ -7,9 +7,8 @@
 
 extern crate embedded_hal as hal;
 
-use hal::blocking::spi;
-use hal::digital::v2::{InputPin, OutputPin};
-use hal::spi::{Mode, Phase, Polarity};
+use hal::digital::{InputPin, OutputPin};
+use hal::spi::{ErrorType, Mode, Phase, Polarity, SpiBus};
 
 #[cfg(feature = "doc")]
 pub mod examples;
@@ -39,14 +38,16 @@ pub struct Max31865<SPI, NCS, RDY> {
 }
 
 #[derive(Debug)]
-pub enum Error<E> {
-    SPIError(E),
+pub enum Error {
+    SpiErrorRead,
+    SpiErrorWrite,
+    SpiErrorTransfert,
     PinError,
 }
 
-impl<E, SPI, NCS, RDY> Max31865<SPI, NCS, RDY>
+impl<SPI, NCS, RDY> Max31865<SPI, NCS, RDY>
 where
-    SPI: spi::Write<u8, Error = E> + spi::Transfer<u8, Error = E>,
+    SPI: SpiBus,
     NCS: OutputPin,
     RDY: InputPin,
 {
@@ -60,7 +61,11 @@ where
     /// * `rdy` - The ready pin which is set low by the MAX31865 controller
     ///           whenever it has finished converting the output.
     ///
-    pub fn new(spi: SPI, mut ncs: NCS, rdy: RDY) -> Result<Max31865<SPI, NCS, RDY>, Error<E>> {
+    pub fn new<E: ErrorType>(
+        spi: SPI,
+        mut ncs: NCS,
+        rdy: RDY,
+    ) -> Result<Max31865<SPI, NCS, RDY>, Error> {
         let default_calib = 40000;
 
         ncs.set_high().map_err(|_| Error::PinError)?;
@@ -103,7 +108,7 @@ where
         one_shot: bool,
         sensor_type: SensorType,
         filter_mode: FilterMode,
-    ) -> Result<(), Error<E>> {
+    ) -> Result<(), Error> {
         let conf: u8 = ((vbias as u8) << 7)
             | ((conversion_mode as u8) << 6)
             | ((one_shot as u8) << 5)
@@ -128,7 +133,7 @@ where
     /// You can perform calibration by putting the sensor in boiling (100
     /// degrees Celsius) water and then measuring the raw value using
     /// `read_raw`. Calculate `calib` as `(13851 << 15) / raw >> 1`.
-    pub fn set_calibration(&mut self, calib: u32) -> () {
+    pub fn set_calibration(&mut self, calib: u32) {
         self.calibration = calib;
     }
 
@@ -137,7 +142,7 @@ where
     /// # Remarks
     ///
     /// The output value is the value in Ohms multiplied by 100.
-    pub fn read_ohms(&mut self) -> Result<u32, Error<E>> {
+    pub fn read_ohms(&mut self) -> Result<u32, Error> {
         let raw = self.read_raw()?;
         let ohms = ((raw >> 1) as u32 * self.calibration) >> 15;
 
@@ -149,7 +154,7 @@ where
     /// # Remarks
     ///
     /// The output value is the value in degrees Celsius multiplied by 100.
-    pub fn read_default_conversion(&mut self) -> Result<i32, Error<E>> {
+    pub fn read_default_conversion(&mut self) -> Result<i32, Error> {
         let ohms = self.read_ohms()?;
         let temp = temp_conversion::LOOKUP_VEC_PT100.lookup_temperature(ohms as i32);
 
@@ -165,7 +170,7 @@ where
     /// resistor (i.e. 2^15 - 1 would be the exact same resistance as the reference
     /// resistor). See manual for further information.
     /// The last bit specifies if the conversion was successful.
-    pub fn read_raw(&mut self) -> Result<u16, Error<E>> {
+    pub fn read_raw(&mut self) -> Result<u16, Error> {
         let msb: u16 = self.read(Register::RTD_MSB)? as u16;
         let lsb: u16 = self.read(Register::RTD_LSB)? as u16;
 
@@ -179,31 +184,34 @@ where
     /// When the module is finished converting the temperature it sets the
     /// ready pin to low. It is automatically returned to high upon reading the
     /// RTD registers.
-    pub fn is_ready(&self) -> Result<bool, RDY::Error> {
+    pub fn is_ready(&mut self) -> Result<bool, RDY::Error> {
         self.rdy.is_low()
     }
 
-    fn read(&mut self, reg: Register) -> Result<u8, Error<E>> {
+    fn read(&mut self, reg: Register) -> Result<u8, Error> {
         let buffer: [u8; 2] = self.read_two(reg)?;
         Ok(buffer[1])
     }
 
-    fn read_two(&mut self, reg: Register) -> Result<[u8; 2], Error<E>> {
-        let mut buffer = [0u8; 2];
-        let slice: &mut [u8] = &mut buffer;
-        slice[0] = reg.read_address();
+    fn read_two(&mut self, reg: Register) -> Result<[u8; 2], Error> {
+        let mut read_buffer = [0u8; 2];
+        let mut write_buffer = [0u8; 1];
+
+        write_buffer[0] = reg.read_address();
         self.ncs.set_low().map_err(|_| Error::PinError)?;
-        self.spi.transfer(slice).map_err(|e| Error::SPIError(e))?;
+        self.spi
+            .transfer(&mut read_buffer, &mut write_buffer)
+            .map_err(|_| Error::SpiErrorTransfert)?;
         self.ncs.set_high().map_err(|_| Error::PinError)?;
 
-        Ok(buffer)
+        Ok(read_buffer)
     }
 
-    fn write(&mut self, reg: Register, val: u8) -> Result<(), Error<E>> {
+    fn write(&mut self, reg: Register, val: u8) -> Result<(), Error> {
         self.ncs.set_low().map_err(|_| Error::PinError)?;
         self.spi
             .write(&[reg.write_address(), val])
-            .map_err(|e| Error::SPIError(e))?;
+            .map_err(|_| Error::SpiErrorWrite)?;
         self.ncs.set_high().map_err(|_| Error::PinError)?;
         Ok(())
     }

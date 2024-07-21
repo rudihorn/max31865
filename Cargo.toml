@@ -12,7 +12,8 @@ license = "MIT OR Apache-2.0"
 edition = "2018"
 
 [dependencies]
-embedded-hal = { version = "0.2.4", features = ["unproven"] }
+embedded-hal = "1.0"
+embedded-hal-bus = "0.2"
 
 [target.thumbv7m-none-eabi.dev-dependencies]
 cortex-m-semihosting = "0.3.7"
